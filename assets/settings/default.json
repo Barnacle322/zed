@@ -981,6 +981,8 @@
     // Default: true
     "folder_icons": true,
     // Whether to also show an expand/collapse arrow (chevron) next to folder icons.
+    //
+    // Default: false
     "folder_chevrons": false,
     // What branch name to use if `init.defaultBranch` is not set
     //
