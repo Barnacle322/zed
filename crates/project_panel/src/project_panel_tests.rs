@@ -11060,3 +11060,73 @@ async fn test_delete_prompt_escapes_markdown_in_file_name(cx: &mut gpui::TestApp
         "Are you sure you want to permanently delete `__somefile__`?"
     );
 }
+
+#[gpui::test]
+async fn test_folder_chevrons_setting(cx: &mut gpui::TestAppContext) {
+    init_test(cx);
+
+    let fs = FakeFs::new(cx.executor());
+    fs.insert_tree(
+        "/root",
+        json!({
+            "dir": { "nested.txt": "" },
+            "file.txt": "",
+        }),
+    )
+    .await;
+
+    let project = Project::test(fs.clone(), ["/root".as_ref()], cx).await;
+    let window = cx.add_window(|window, cx| MultiWorkspace::test_new(project.clone(), window, cx));
+    let workspace = window
+        .read_with(cx, |mw, _| mw.workspace().clone())
+        .unwrap();
+    let cx = &mut VisualTestContext::from_window(window.into(), cx);
+    let panel = workspace.update_in(cx, ProjectPanel::new);
+    cx.run_until_parked();
+
+    // (show_folder_icons, show_folder_chevrons) ->
+    //   (dir_icon.is_some, dir_chevron.is_some)
+    let cases = [
+        ((true, false), (true, false)),  // today's default: glyph only
+        ((true, true), (true, true)),    // both
+        ((false, false), (true, false)), // chevron in icon slot
+        ((false, true), (true, false)),  // chevron only
+    ];
+
+    for ((folder_icons, folder_chevrons), (expect_icon, expect_chevron)) in cases {
+        cx.update(|_, cx| {
+            cx.update_global::<SettingsStore, _>(|store, cx| {
+                store.update_user_settings(cx, |settings| {
+                    let panel = settings.project_panel.get_or_insert_default();
+                    panel.folder_icons = Some(folder_icons);
+                    panel.folder_chevrons = Some(folder_chevrons);
+                });
+            });
+        });
+        cx.run_until_parked();
+
+        let mut dir = None;
+        let mut file = None;
+        panel.update_in(cx, |panel, window, cx| {
+            panel.for_each_visible_entry(0..10, window, cx, &mut |_, details, _, _| {
+                if details.filename == "dir" {
+                    dir = Some((details.icon.is_some(), details.folder_chevron.is_some()));
+                } else if details.filename == "file.txt" {
+                    file = Some((details.icon.is_some(), details.folder_chevron.is_some()));
+                }
+            });
+        });
+
+        assert_eq!(
+            dir,
+            Some((expect_icon, expect_chevron)),
+            "dir with folder_icons={folder_icons}, folder_chevrons={folder_chevrons}"
+        );
+        // Files never carry a folder chevron, in any mode.
+        assert_eq!(
+            file.map(|(_, chevron)| chevron),
+            Some(false),
+            "file with folder_icons={folder_icons}, folder_chevrons={folder_chevrons}"
+        );
+    }
+}
