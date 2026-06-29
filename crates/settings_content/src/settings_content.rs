@@ -1085,6 +1085,10 @@ pub struct OutlinePanelSettingsContent {
     ///
     /// Default: true
     pub folder_icons: Option<bool>,
+    /// Whether to also show an expand/collapse arrow (chevron) next to folder icons in the outline panel.
+    ///
+    /// Default: false
+    pub folder_chevrons: Option<bool>,
     /// Whether to show the git status in the outline panel.
     ///
     /// Default: true

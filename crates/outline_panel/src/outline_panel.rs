@@ -2387,13 +2387,34 @@ impl OutlinePanel {
                     directory.entry.is_ignored,
                     is_active,
                 );
-                let icon = if settings.folder_icons {
-                    FileIcons::get_folder_icon(is_expanded, directory.entry.path.as_std_path(), cx)
+                let show_chevron = settings.folder_chevrons || !settings.folder_icons;
+                let glyph = if settings.folder_icons {
+                    FileIcons::get_folder_icon(
+                        is_expanded,
+                        directory.entry.path.as_std_path(),
+                        cx,
+                    )
                 } else {
                     FileIcons::get_chevron_icon(is_expanded, cx)
                 }
                 .map(Icon::from_path)
                 .map(|icon| icon.color(color).into_any_element());
+                let leading_chevron = (settings.folder_icons && show_chevron)
+                    .then(|| FileIcons::get_chevron_icon(is_expanded, cx))
+                    .flatten()
+                    .map(Icon::from_path)
+                    .map(|icon| icon.color(color).into_any_element());
+                let icon = match (leading_chevron, glyph) {
+                    (Some(chevron), Some(glyph)) => Some(
+                        h_flex()
+                            .gap_1()
+                            .child(chevron)
+                            .child(glyph)
+                            .into_any_element(),
+                    ),
+                    (None, glyph) => glyph,
+                    (Some(chevron), None) => Some(chevron),
+                };
                 (
                     ElementId::from(directory.entry.id.to_proto() as usize),
                     HighlightedLabel::new(
@@ -2484,13 +2505,30 @@ impl OutlinePanel {
                 .map(|entry| entry.git_summary)
                 .unwrap_or_default();
             let color = entry_git_aware_label_color(git_status, is_ignored, is_active);
-            let icon = if settings.folder_icons {
+            let show_chevron = settings.folder_chevrons || !settings.folder_icons;
+            let glyph = if settings.folder_icons {
                 FileIcons::get_folder_icon(is_expanded, &Path::new(&name), cx)
             } else {
                 FileIcons::get_chevron_icon(is_expanded, cx)
             }
             .map(Icon::from_path)
             .map(|icon| icon.color(color).into_any_element());
+            let leading_chevron = (settings.folder_icons && show_chevron)
+                .then(|| FileIcons::get_chevron_icon(is_expanded, cx))
+                .flatten()
+                .map(Icon::from_path)
+                .map(|icon| icon.color(color).into_any_element());
+            let icon = match (leading_chevron, glyph) {
+                (Some(chevron), Some(glyph)) => Some(
+                    h_flex()
+                        .gap_1()
+                        .child(chevron)
+                        .child(glyph)
+                        .into_any_element(),
+                ),
+                (None, glyph) => glyph,
+                (Some(chevron), None) => Some(chevron),
+            };
             (
                 ElementId::from(
                     folded_dir
@@ -5352,6 +5390,13 @@ mod tests {
     use super::*;
 
     const SELECTED_MARKER: &str = "  <==== selected";
+
+    #[gpui::test]
+    async fn test_outline_panel_folder_chevrons_default(cx: &mut TestAppContext) {
+        init_test(cx);
+        let settings = cx.read(|cx| OutlinePanelSettings::get_global(cx).folder_chevrons);
+        assert!(!settings, "folder_chevrons must default to false");
+    }
 
     #[gpui::test(iterations = 10)]
     async fn test_project_search_results_toggling(cx: &mut TestAppContext) {

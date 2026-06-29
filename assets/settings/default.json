@@ -907,6 +907,8 @@
     "file_icons": true,
     // Whether to show folder icons or chevrons for directories in the outline panel.
     "folder_icons": true,
+    // Whether to also show an expand/collapse arrow (chevron) next to folder icons.
+    "folder_chevrons": false,
     // Whether to show the git status in the outline panel.
     "git_status": true,
     // Amount of indentation for nested items.
