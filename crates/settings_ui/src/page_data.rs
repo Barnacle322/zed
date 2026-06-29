@@ -4919,7 +4919,7 @@ fn window_and_layout_page() -> SettingsPage {
 }
 
 fn panels_page() -> SettingsPage {
-    fn project_panel_section() -> [SettingsPageItem; 29] {
+    fn project_panel_section() -> [SettingsPageItem; 30] {
         [
             SettingsPageItem::SectionHeader("Project Panel"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -5042,6 +5042,29 @@ fn panels_page() -> SettingsPage {
                             .project_panel
                             .get_or_insert_default()
                             .folder_icons = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Folder Chevrons",
+                description: "Show expand/collapse arrows (chevrons) next to folder icons.",
+                field: Box::new(SettingField {
+                    organization_override: None,
+                    json_path: Some("project_panel.folder_chevrons"),
+                    pick: |settings_content| {
+                        settings_content
+                            .project_panel
+                            .as_ref()?
+                            .folder_chevrons
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .project_panel
+                            .get_or_insert_default()
+                            .folder_chevrons = value;
                     },
                 }),
                 metadata: None,
@@ -5619,7 +5642,7 @@ fn panels_page() -> SettingsPage {
         ]
     }
 
-    fn outline_panel_section() -> [SettingsPageItem; 11] {
+    fn outline_panel_section() -> [SettingsPageItem; 12] {
         [
             SettingsPageItem::SectionHeader("Outline Panel"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -5715,6 +5738,29 @@ fn panels_page() -> SettingsPage {
                             .outline_panel
                             .get_or_insert_default()
                             .folder_icons = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Folder Chevrons",
+                description: "Show expand/collapse arrows (chevrons) next to folder icons.",
+                field: Box::new(SettingField {
+                    organization_override: None,
+                    json_path: Some("outline_panel.folder_chevrons"),
+                    pick: |settings_content| {
+                        settings_content
+                            .outline_panel
+                            .as_ref()?
+                            .folder_chevrons
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .outline_panel
+                            .get_or_insert_default()
+                            .folder_chevrons = value;
                     },
                 }),
                 metadata: None,
@@ -5838,7 +5884,7 @@ fn panels_page() -> SettingsPage {
         ]
     }
 
-    fn git_panel_section() -> [SettingsPageItem; 17] {
+    fn git_panel_section() -> [SettingsPageItem; 18] {
         [
             SettingsPageItem::SectionHeader("Git Panel"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -6030,6 +6076,29 @@ fn panels_page() -> SettingsPage {
                             .git_panel
                             .get_or_insert_default()
                             .folder_icons = value;
+                    },
+                }),
+                metadata: None,
+                files: USER,
+            }),
+            SettingsPageItem::SettingItem(SettingItem {
+                title: "Folder Chevrons",
+                description: "Show expand/collapse arrows (chevrons) next to folder icons.",
+                field: Box::new(SettingField {
+                    organization_override: None,
+                    json_path: Some("git_panel.folder_chevrons"),
+                    pick: |settings_content| {
+                        settings_content
+                            .git_panel
+                            .as_ref()?
+                            .folder_chevrons
+                            .as_ref()
+                    },
+                    write: |settings_content, value, _| {
+                        settings_content
+                            .git_panel
+                            .get_or_insert_default()
+                            .folder_chevrons = value;
                     },
                 }),
                 metadata: None,
