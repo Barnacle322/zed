@@ -470,6 +470,7 @@ Project panel can be shown/hidden with {#action project_panel::ToggleFocus} ({#k
     "entry_spacing": "comfortable", // Vertical spacing (comfortable, standard)
     "file_icons": true,             // Show/hide file icons
     "folder_icons": true,           // Show/hide folder icons
+    "folder_chevrons": false,       // Also show expand/collapse arrows (chevrons) next to folder icons
     "git_status": true,             // Indicate new/updated files
     "indent_size": 20,              // Pixels for each successive indent
     "auto_reveal_entries": true,    // Show file in panel when activating its buffer
@@ -590,6 +591,7 @@ See [Terminal settings](./reference/all-settings.md#terminal) for additional non
     "dock": "left",               // Where to dock: left, right
     "file_icons": true,           // Show/hide file_icons
     "folder_icons": true,         // Show file_icons (true), chevrons (false) for dirs
+    "folder_chevrons": false,     // Also show expand/collapse arrows (chevrons) next to folder icons
     "git_status": true,           // Show git status
     "indent_size": 20,            // Indentation for nested items (pixels)
     "indent_guides": {

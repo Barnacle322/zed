@@ -806,6 +806,8 @@ impl VsCodeSettings {
             entry_spacing: None,
             file_icons: None,
             folder_icons: None,
+            // VS Code always shows folder arrows; we leave `folder_chevrons`
+            // unset so Zed keeps its opt-in default rather than forcing them on.
             folder_chevrons: None,
             git_status: self.read_bool("git.decorations.enabled"),
             hide_gitignore: self.read_bool("explorer.excludeGitIgnore"),
