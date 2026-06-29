@@ -909,6 +909,7 @@ impl GitPanel {
             let mut was_tree_view = GitPanelSettings::get_global(cx).tree_view;
             let mut was_file_icons = GitPanelSettings::get_global(cx).file_icons;
             let mut was_folder_icons = GitPanelSettings::get_global(cx).folder_icons;
+            let mut was_folder_chevrons = GitPanelSettings::get_global(cx).folder_chevrons;
             let mut was_diff_stats = GitPanelSettings::get_global(cx).diff_stats;
             cx.observe_global_in::<SettingsStore>(window, move |this, window, cx| {
                 let settings = GitPanelSettings::get_global(cx);
@@ -917,6 +918,7 @@ impl GitPanel {
                 let tree_view = settings.tree_view;
                 let file_icons = settings.file_icons;
                 let folder_icons = settings.folder_icons;
+                let folder_chevrons = settings.folder_chevrons;
                 let diff_stats = settings.diff_stats;
                 if tree_view != was_tree_view {
                     match (&mut this.view_mode, tree_view) {
@@ -943,7 +945,10 @@ impl GitPanel {
                 if (diff_stats != was_diff_stats) || update_entries {
                     this.update_visible_entries(window, cx);
                 }
-                if file_icons != was_file_icons || folder_icons != was_folder_icons {
+                if file_icons != was_file_icons
+                    || folder_icons != was_folder_icons
+                    || folder_chevrons != was_folder_chevrons
+                {
                     cx.notify();
                 }
                 was_sort_by = sort_by;
@@ -951,6 +956,7 @@ impl GitPanel {
                 was_tree_view = tree_view;
                 was_file_icons = file_icons;
                 was_folder_icons = folder_icons;
+                was_folder_chevrons = folder_chevrons;
                 was_diff_stats = diff_stats;
             })
             .detach();
@@ -6868,6 +6874,20 @@ impl GitPanel {
                 IconName::ChevronRight
             }
         };
+        let show_chevron = settings.folder_chevrons || !settings.folder_icons;
+        let leading_chevron = (settings.folder_icons && show_chevron).then(|| {
+            FileIcons::get_chevron_icon(entry.expanded, cx)
+                .map(|path| Icon::from_path(path).size(IconSize::Small).color(Color::Muted))
+                .unwrap_or_else(|| {
+                    Icon::new(if entry.expanded {
+                        IconName::ChevronDown
+                    } else {
+                        IconName::ChevronRight
+                    })
+                    .size(IconSize::Small)
+                    .color(Color::Muted)
+                })
+        });
 
         let stage_status = if let Some(repo) = &self.active_repository {
             self.stage_status_for_directory(entry, repo.read(cx))
@@ -6888,6 +6908,7 @@ impl GitPanel {
             .min_w_0()
             .gap_1()
             .pl(px(entry.depth as f32 * TREE_INDENT))
+            .when_some(leading_chevron, |this, chevron| this.child(chevron))
             .child(
                 folder_icon
                     .map(|folder_icon| {
@@ -10463,5 +10484,12 @@ mod tests {
         panel.update_in(&mut cx, |panel, window, cx| {
             assert!(panel.commit_editor.focus_handle(cx).is_focused(window));
         });
+    }
+
+    #[gpui::test]
+    async fn test_git_panel_folder_chevrons_default(cx: &mut gpui::TestAppContext) {
+        init_test(cx);
+        let value = cx.read(|cx| GitPanelSettings::get_global(cx).folder_chevrons);
+        assert!(!value, "folder_chevrons must default to false");
     }
 }
